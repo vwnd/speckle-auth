@@ -22,7 +22,7 @@ export interface ApplicationOptions extends BaseOptions {
 
 export class SpeckleAuthClient {
   private readonly serverUrl: string;
-  private token?: string;
+  private _token?: string;
   private readonly authType: 'pat' | 'app';
 
   private readonly clientId?: string;
@@ -31,9 +31,9 @@ export class SpeckleAuthClient {
   constructor(options: PersonalAccessTokenOptions | ApplicationOptions) {
     this.serverUrl = options.serverUrl || 'https://app.speckle.systems';
     if (this.isPersonalAccessTokenOptions(options)) {
-      this.token = options.token;
+      this._token = options.token;
       this.authType = 'pat';
-      localStorage.setItem('speckle:auth:token', this.token);
+      localStorage.setItem('speckle:auth:token', this._token);
     } else {
       this.clientId = options.clientId;
       this.clientSecret = options.clientSecret;
@@ -44,14 +44,14 @@ export class SpeckleAuthClient {
   async user(): Promise<User | null> {
     this.tryRestoreSession();
 
-    if (!this.token) {
+    if (!this._token) {
       return null;
     }
 
     const response = await fetch(`${this.serverUrl}/graphql`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${this._token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -128,13 +128,13 @@ export class SpeckleAuthClient {
       localStorage.setItem('speckle:auth:token', data.token);
       localStorage.setItem('speckle:auth:refresh-token', data.refreshToken);
 
-      this.token = data.token;
+      this._token = data.token;
     }
   }
 
   async logout() {
     if (this.authType !== 'pat') {
-      this.token = undefined;
+      this._token = undefined;
     }
     localStorage.removeItem('speckle:auth:token');
     localStorage.removeItem('speckle:auth:refresh-token');
@@ -144,7 +144,7 @@ export class SpeckleAuthClient {
   private tryRestoreSession() {
     const token = localStorage.getItem('speckle:auth:token');
     if (token) {
-      this.token = token;
+      this._token = token;
     }
   }
 
@@ -152,5 +152,9 @@ export class SpeckleAuthClient {
     options: PersonalAccessTokenOptions | ApplicationOptions,
   ): options is PersonalAccessTokenOptions {
     return (options as PersonalAccessTokenOptions).token !== undefined;
+  }
+
+  get token() {
+    return this._token;
   }
 }
