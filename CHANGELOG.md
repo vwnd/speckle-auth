@@ -1,5 +1,11 @@
 # speckle-auth
 
+## 0.0.5
+
+### Patch Changes
+
+- 58b4970: Small fixes on the PAT logout.
+
 ## 0.0.4
 
 ### Patch Changes
