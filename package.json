@@ -21,6 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.3",
+    "@changesets/cli": "^2.27.12",
     "@eslint/js": "^9.19.0",
     "eslint": "^9.19.0",
     "prettier": "^3.4.2",
@@ -36,6 +37,8 @@
     "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
     "lint": "eslint .",
     "test": "vitest run",
-    "dev": "vitest"
+    "dev": "vitest",
+    "local-release": "changeset version && changeset publish",
+    "prepublishOnly": "npm run ci"
   }
 }
