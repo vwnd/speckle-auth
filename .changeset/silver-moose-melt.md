@@ -1,5 +1,0 @@
----
-'speckle-auth': patch
----
-
-Improvements

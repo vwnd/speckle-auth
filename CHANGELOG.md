@@ -1,5 +1,11 @@
 # speckle-auth
 
+## 0.0.4
+
+### Patch Changes
+
+- 1acbb6c: Improvements
+
 ## 0.0.3
 
 ### Patch Changes
