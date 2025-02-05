@@ -1,1 +1,1 @@
-export { add } from './utils.js';
+export { SpeckleAuthClient } from './utils.js';
