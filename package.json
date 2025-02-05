@@ -1,0 +1,30 @@
+{
+  "name": "speckle-auth",
+  "version": "0.0.1",
+  "description": "Utilities for authenticating with the Speckle.",
+  "keywords": [
+    "speckle",
+    "auth",
+    "oauth",
+    "token"
+  ],
+  "author": "Victor Wanderley Barbosa <victorwanderleyb@gmail.com> (https://github.com/vwnd)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vwnd/speckle-auth.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "ci": "npm run build",
+    "format": "prettier --write ."
+  }
+}
