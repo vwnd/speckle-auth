@@ -33,6 +33,7 @@ export class SpeckleAuthClient {
     if (this.isPersonalAccessTokenOptions(options)) {
       this.token = options.token;
       this.authType = 'pat';
+      localStorage.setItem('speckle:auth:token', this.token);
     } else {
       this.clientId = options.clientId;
       this.clientSecret = options.clientSecret;
@@ -132,7 +133,9 @@ export class SpeckleAuthClient {
   }
 
   async logout() {
-    this.token = undefined;
+    if (this.authType !== 'pat') {
+      this.token = undefined;
+    }
     localStorage.removeItem('speckle:auth:token');
     localStorage.removeItem('speckle:auth:refresh-token');
     localStorage.removeItem('speckle:auth:challenge');
