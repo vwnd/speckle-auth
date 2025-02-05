@@ -1,6 +1,6 @@
 {
   "name": "speckle-auth",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Utilities for authenticating with the Speckle.",
   "keywords": [
     "speckle",

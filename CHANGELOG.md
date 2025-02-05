@@ -1,5 +1,11 @@
 # speckle-auth
 
+## 0.0.6
+
+### Patch Changes
+
+- 8b927ab: expose token
+
 ## 0.0.5
 
 ### Patch Changes
