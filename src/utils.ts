@@ -1,11 +1,21 @@
+export interface User {
+  avatar: string;
+  id: string;
+  email: string;
+  name: string;
+  bio: string;
+  company: string;
+}
+
 interface BaseOptions {
   serverUrl?: string;
 }
-interface PersonalAccessTokenOptions extends BaseOptions {
+
+export interface PersonalAccessTokenOptions extends BaseOptions {
   token: string;
 }
 
-interface ApplicationOptions extends BaseOptions {
+export interface ApplicationOptions extends BaseOptions {
   clientId: string;
   clientSecret: string;
 }
@@ -30,7 +40,9 @@ export class SpeckleAuthClient {
     }
   }
 
-  async user() {
+  async user(): Promise<User | null> {
+    this.tryRestoreSession();
+
     if (!this.token) {
       return null;
     }
@@ -62,18 +74,22 @@ export class SpeckleAuthClient {
     });
 
     const data = await response.json();
-    return data.data.activeUser;
+    const user = {
+      ...data.data.activeUser,
+    };
+    return user as User;
   }
 
   async login() {
     if (this.authType === 'pat') {
-      return;
+      return await this.user();
     }
 
     const storedChallenge = localStorage.getItem('speckle:auth:challenge');
     const accessCode = window.location.search.split('access_code=')[1];
     if (storedChallenge && accessCode) {
-      return this.handleRedirect(accessCode, storedChallenge);
+      await this.handleRedirect(accessCode, storedChallenge);
+      return await this.user();
     }
 
     const challenge =
@@ -83,6 +99,7 @@ export class SpeckleAuthClient {
     localStorage.setItem('speckle:auth:challenge', challenge);
 
     window.location.href = `${this.serverUrl}/authn/verify/${this.clientId}/${challenge}`;
+    return null;
   }
 
   private async handleRedirect(accessCode: string, challenge: string) {
@@ -116,6 +133,16 @@ export class SpeckleAuthClient {
 
   async logout() {
     this.token = undefined;
+    localStorage.removeItem('speckle:auth:token');
+    localStorage.removeItem('speckle:auth:refresh-token');
+    localStorage.removeItem('speckle:auth:challenge');
+  }
+
+  private tryRestoreSession() {
+    const token = localStorage.getItem('speckle:auth:token');
+    if (token) {
+      this.token = token;
+    }
   }
 
   private isPersonalAccessTokenOptions(
