@@ -41,6 +41,10 @@ export class SpeckleAuthClient {
     }
   }
 
+  get token(): string | undefined {
+    return this._token;
+  }
+
   async user(): Promise<User | null> {
     this.tryRestoreSession();
 
@@ -81,7 +85,7 @@ export class SpeckleAuthClient {
     return user as User;
   }
 
-  async login() {
+  async login(): Promise<User | null> {
     if (this.authType === 'pat') {
       return await this.user();
     }
@@ -103,7 +107,32 @@ export class SpeckleAuthClient {
     return null;
   }
 
-  private async handleRedirect(accessCode: string, challenge: string) {
+  logout(): void {
+    if (this.authType !== 'pat') {
+      this._token = undefined;
+    }
+    localStorage.removeItem('speckle:auth:token');
+    localStorage.removeItem('speckle:auth:refresh-token');
+    localStorage.removeItem('speckle:auth:challenge');
+  }
+
+  private tryRestoreSession(): void {
+    const token = localStorage.getItem('speckle:auth:token');
+    if (token) {
+      this._token = token;
+    }
+  }
+
+  private isPersonalAccessTokenOptions(
+    options: PersonalAccessTokenOptions | ApplicationOptions,
+  ): options is PersonalAccessTokenOptions {
+    return (options as PersonalAccessTokenOptions).token !== undefined;
+  }
+
+  private async handleRedirect(
+    accessCode: string,
+    challenge: string,
+  ): Promise<void> {
     if (!this.clientId || !this.clientSecret) {
       return;
     }
@@ -130,31 +159,5 @@ export class SpeckleAuthClient {
 
       this._token = data.token;
     }
-  }
-
-  async logout() {
-    if (this.authType !== 'pat') {
-      this._token = undefined;
-    }
-    localStorage.removeItem('speckle:auth:token');
-    localStorage.removeItem('speckle:auth:refresh-token');
-    localStorage.removeItem('speckle:auth:challenge');
-  }
-
-  private tryRestoreSession() {
-    const token = localStorage.getItem('speckle:auth:token');
-    if (token) {
-      this._token = token;
-    }
-  }
-
-  private isPersonalAccessTokenOptions(
-    options: PersonalAccessTokenOptions | ApplicationOptions,
-  ): options is PersonalAccessTokenOptions {
-    return (options as PersonalAccessTokenOptions).token !== undefined;
-  }
-
-  get token() {
-    return this._token;
   }
 }
