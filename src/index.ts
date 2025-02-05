@@ -3,4 +3,4 @@ export {
   type ApplicationOptions,
   type PersonalAccessTokenOptions,
   type User,
-} from './utils.js';
+} from './lib.js';
