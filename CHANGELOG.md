@@ -1,5 +1,11 @@
 # speckle-auth
 
+## 0.0.7
+
+### Patch Changes
+
+- 5cf5c83: added tests
+
 ## 0.0.6
 
 ### Patch Changes
