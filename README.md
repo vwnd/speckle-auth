@@ -85,6 +85,10 @@ Starts the login process for OAuth users. Note that the `login` will also handle
 
 Logs the user out.
 
+### `speckle.token` 🔑
+
+Returns the current authentication token, or `undefined` if no token is available. Use it to make further requests to the Speckle API.
+
 ## License 📜⚖️🔓
 
 This package is available under the MIT License, so you can modify and share it as needed. 🎉📢💡
