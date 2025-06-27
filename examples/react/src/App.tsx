@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 
 import { SpeckleAuthClient, type User } from '../../../';
@@ -26,22 +26,22 @@ function App() {
     if (user) setUserInfo(user);
   };
 
-  useEffect(() => {
-    const authenticate = async () => {
-      console.log('checking for existing session...');
-      const user = await client.user();
-      if (user) {
-        setUserInfo(user);
-      } else {
-        // Only trigger login if no user is found
-        const loginResult = await client.login();
-        if (loginResult) setUserInfo(loginResult);
-      }
-    };
+  const authenticate = useCallback(async () => {
+		console.log('checking for existing session...')
+		const user = await client.user()
+		if (user) {
+			setUserInfo(user)
+		} else {
+			// Only trigger login if no user is found
+			const loginResult = await client.login()
+			if (loginResult) setUserInfo(loginResult)
+		}
+	}, [client])
 
-    authenticate();
-    // Only run once on mount
-  }, []);
+	useEffect(() => {
+		// Only run once on mount
+		authenticate()
+	}, [])
 
   return (
     <div>
