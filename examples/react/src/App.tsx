@@ -27,21 +27,21 @@ function App() {
   };
 
   const authenticate = useCallback(async () => {
-		console.log('checking for existing session...')
-		const user = await client.user()
-		if (user) {
-			setUserInfo(user)
-		} else {
-			// Only trigger login if no user is found
-			const loginResult = await client.login()
-			if (loginResult) setUserInfo(loginResult)
-		}
-	}, [client])
+    console.log('checking for existing session...');
+    const user = await client.user();
+    if (user) {
+      setUserInfo(user);
+    } else {
+      // Only trigger login if no user is found
+      const loginResult = await client.login();
+      if (loginResult) setUserInfo(loginResult);
+    }
+  }, [client]);
 
-	useEffect(() => {
-		// Only run once on mount
-		authenticate()
-	}, [])
+  useEffect(() => {
+    // Only run once on mount
+    authenticate();
+  }, []);
 
   return (
     <div>
