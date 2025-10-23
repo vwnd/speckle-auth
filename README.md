@@ -39,6 +39,23 @@ async function logoutUser() {
 }
 ```
 
+#### Storing Speckle Credentials in cookies
+
+By default, Speckle credentials are stored in local storage.
+If you want to store them in cookies instead, you can set `cookieAppDomain` to the domain of your app.
+This is useful if you want to use the same Speckle credentials across multiple subdomains.
+
+```ts
+import { SpeckleAuthClient, type ApplicationOptions } from 'speckle-auth';
+
+const options: ApplicationOptions = {
+  clientId: 'your-client-id',
+  clientSecret: 'your-client-secret',
+  serverUrl: 'https://app.speckle.systems',
+  cookieAppDomain: 'your-app-domain.com',
+};
+```
+
 ### Logging in with a Personal Access Token (PAT) 🔒🛡️🔑
 
 If you don't want to use OAuth, you can log in with a personal access token instead.

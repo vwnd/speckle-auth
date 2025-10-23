@@ -18,13 +18,23 @@ export interface PersonalAccessTokenOptions extends BaseOptions {
 export interface ApplicationOptions extends BaseOptions {
   clientId: string;
   clientSecret: string;
+  cookieAppDomain?: string;
+}
+
+interface SetCookieProps {
+  name: string;
+  value: string;
 }
 
 export class SpeckleAuthClient {
   private readonly serverUrl: string;
   private _token?: string;
-  private readonly authType: 'pat' | 'app';
+  private readonly _tokenName = 'speckle:auth:token';
+  private readonly _refreshTokenName = 'speckle:auth:refresh-token';
+  private readonly _challengeName = 'speckle:auth:challenge';
 
+  private readonly authType: 'pat' | 'app';
+  private readonly cookieAppDomain?: string;
   private readonly clientId?: string;
   private readonly clientSecret?: string;
 
@@ -33,10 +43,11 @@ export class SpeckleAuthClient {
     if (this.isPersonalAccessTokenOptions(options)) {
       this._token = options.token;
       this.authType = 'pat';
-      localStorage.setItem('speckle:auth:token', this._token);
+      localStorage.setItem(this._tokenName, this._token);
     } else {
       this.clientId = options.clientId;
       this.clientSecret = options.clientSecret;
+      this.cookieAppDomain = options.cookieAppDomain;
       this.authType = 'app';
     }
   }
@@ -90,7 +101,7 @@ export class SpeckleAuthClient {
       return await this.user();
     }
 
-    const storedChallenge = localStorage.getItem('speckle:auth:challenge');
+    const storedChallenge = localStorage.getItem(this._challengeName);
     const accessCode = window.location.search.split('access_code=')[1];
     if (storedChallenge && accessCode) {
       await this.handleRedirect(accessCode, storedChallenge);
@@ -101,7 +112,7 @@ export class SpeckleAuthClient {
       Math.random().toString(36).substring(2, 15) +
       Math.random().toString(36).substring(2, 15);
 
-    localStorage.setItem('speckle:auth:challenge', challenge);
+    localStorage.setItem(this._challengeName, challenge);
 
     window.location.href = `${this.serverUrl}/authn/verify/${this.clientId}/${challenge}`;
     return null;
@@ -111,13 +122,22 @@ export class SpeckleAuthClient {
     if (this.authType !== 'pat') {
       this._token = undefined;
     }
-    localStorage.removeItem('speckle:auth:token');
-    localStorage.removeItem('speckle:auth:refresh-token');
-    localStorage.removeItem('speckle:auth:challenge');
+    if (this.cookieAppDomain) {
+      this.deleteCookie(this._tokenName);
+      this.deleteCookie(this._refreshTokenName);
+    }
+    localStorage.removeItem(this._tokenName);
+    localStorage.removeItem(this._refreshTokenName);
+    localStorage.removeItem(this._challengeName);
   }
 
   private tryRestoreSession(): void {
-    const token = localStorage.getItem('speckle:auth:token');
+    let token: string | null | undefined;
+    if (this.cookieAppDomain) {
+      token = this.getCookie(this._tokenName);
+    } else {
+      token = localStorage.getItem(this._tokenName);
+    }
     if (token) {
       this._token = token;
     }
@@ -153,11 +173,33 @@ export class SpeckleAuthClient {
     const data = await res.json();
 
     if (data.token) {
-      localStorage.removeItem('speckle:auth:challenge');
-      localStorage.setItem('speckle:auth:token', data.token);
-      localStorage.setItem('speckle:auth:refresh-token', data.refreshToken);
+      localStorage.removeItem(this._challengeName);
+      if (this.cookieAppDomain) {
+        this.setCookie({ name: this._tokenName, value: data.token });
+        this.setCookie({
+          name: this._refreshTokenName,
+          value: data.refreshToken,
+        });
+      }
+      localStorage.setItem(this._tokenName, data.token);
+      localStorage.setItem(this._refreshTokenName, data.refreshToken);
 
       this._token = data.token;
     }
   }
+
+  private setCookie = ({ name, value }: SetCookieProps) => {
+    document.cookie = `${name}=${value}; domain=${this.cookieAppDomain}; SameSite=${this.cookieAppDomain === 'localhost' ? 'lax' : 'None; Secure;'}`;
+  };
+
+  private deleteCookie = (name: string) => {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+  };
+
+  private getCookie = (name: string) => {
+    return document.cookie
+      .split('; ')
+      .find((row) => row.startsWith(`${name}=`))
+      ?.split('=')[1];
+  };
 }
