@@ -1,5 +1,11 @@
 # speckle-auth
 
+## 0.0.8
+
+### Patch Changes
+
+- 24d1171: add support for storing speckle credentials in cookies
+
 ## 0.0.7
 
 ### Patch Changes
